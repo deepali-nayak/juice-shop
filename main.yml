@@ -1,0 +1,31 @@
+name: Invicti Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  invicti_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Invicti CLI
+      run: |
+        curl -L https://download.acunetix.com/api/appv5.tar.gz | tar zxvf -
+      working-directory: /opt/
+
+    - name: Run Invicti Scan
+      env:
+        INVICTI_API_TOKEN: ${{ secrets.INVICTI_API_TOKEN }}
+      run: |
+        /opt/acunetix.sh scan create --target "https://juice-shop.herokuapp.com/#/" --profile "full-audit" --incremental false
+      working-directory: /opt/Acunetix-cli
+
+    - name: Get Scan Results
+      run: |
+        /opt/acunetix.sh scan list
+      working-directory: /opt/Acunetix-cli
